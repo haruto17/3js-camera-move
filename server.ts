@@ -11,7 +11,7 @@ serve((req) => {
   return serveDir(req, {
     fsRoot: "public",
     urlRoot: "",
-    showDirListening: true,
+    showDirListing: true,
     enableCors: true,
   });
 });
