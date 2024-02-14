@@ -1,1 +1,86 @@
-<h1>Hello</h1>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    _
+    <title>3js-camera-move-sample</title>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="mycanvas"></canvas>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/",
+          "webxr-polyfill": "https://cdn.jsdelivr.net/npm/webxr-polyfill@latest/build/webxr-polyfill.module.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { VRButton } from "three/addons/webxr/VRButton.js";
+      import WebXRPolyfill from "webxr-polyfill";
+
+      const polyfill = new WebXRPolyfill();
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      const camera = new THREE.PerspectiveCamera(
+        80,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+
+      const cameraContainer = new THREE.Group();
+      cameraContainer.add(camera);
+      scene.add(cameraContainer);
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector("#mycanvas"),
+        antialias: true,
+      });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.xr.enabled = true;
+      document.body.appendChild(renderer.domElement);
+
+      document.body.appendChild(VRButton.createButton(renderer));
+
+      const cube = new THREE.BoxGeometry(1, 1, 1);
+      const cube_material = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.0,
+      });
+      const cube_mesh = new THREE.Mesh(cube, cube_material);
+      scene.add(cube_mesh);
+
+      // 環境光源
+      const light0 = new THREE.AmbientLight(0xffffff, 1.0);
+      scene.add(light0);
+
+      // ディレクションライト
+      const light1 = new THREE.DirectionalLight(0xffffff, 10.0);
+      scene.add(light1);
+
+      function tick() {
+        renderer.render(scene, camera);
+      }
+      renderer.setAnimationLoop(tick);
+
+      window.addEventListener("resize", onResize);
+      function onResize() {
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+      }
+    </script>
+  </body>
+</html>
