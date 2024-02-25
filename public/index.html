@@ -24,13 +24,16 @@
     <script type="module">
       import * as THREE from "three";
       import { VRButton } from "three/addons/webxr/VRButton.js";
+      import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
       import WebXRPolyfill from "webxr-polyfill";
 
       const polyfill = new WebXRPolyfill();
 
+      // create scene
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x000000);
 
+      // create camera
       const camera = new THREE.PerspectiveCamera(
         80,
         window.innerWidth / window.innerHeight,
@@ -38,10 +41,12 @@
         1000
       );
 
+      // create camera container
       const cameraContainer = new THREE.Group();
       cameraContainer.add(camera);
       scene.add(cameraContainer);
 
+      // set renderer
       const renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector("#mycanvas"),
         antialias: true,
@@ -51,7 +56,38 @@
       renderer.xr.enabled = true;
       document.body.appendChild(renderer.domElement);
 
+      // add VRButton
       document.body.appendChild(VRButton.createButton(renderer));
+
+      // add controller ray
+      const ray_geometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0, -1),
+      ]);
+      const ray = new THREE.Line(ray_geometry);
+      ray.name = "ray";
+      ray.scale.z = 3;
+
+      // create controller
+      const ctrModelFactory = new XRControllerModelFactory();
+
+      // left controller
+      const ctr0 = renderer.xr.getController(0);
+      cameraContainer.add(ctr0);
+      const ctr0_grip = renderer.xr.getControllerGrip(0);
+      const ctr0_model = ctrModelFactory.createControllerModel(ctr0_grip);
+      ctr0_grip.add(ctr0_model);
+      cameraContainer.add(ctr0_grip);
+      ctr0.add(ray.clone());
+
+      // right controller
+      const ctr1 = renderer.xr.getController(1);
+      cameraContainer.add(ctr1);
+      const ctr1_grip = renderer.xr.getControllerGrip(1);
+      const ctr1_model = ctrModelFactory.createControllerModel(ctr1_grip);
+      ctr1_grip.add(ctr1_model);
+      cameraContainer.add(ctr1_grip);
+      ctr1.add(ray.clone());
 
       const cube = new THREE.BoxGeometry(1, 1, 1);
       const cube_material = new THREE.MeshStandardMaterial({
