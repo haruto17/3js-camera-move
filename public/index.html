@@ -74,19 +74,19 @@
       // left controller
       const ctr0 = renderer.xr.getController(0);
       cameraContainer.add(ctr0);
-      const ctr0_grip = renderer.xr.getControllerGrip(0);
-      const ctr0_model = ctrModelFactory.createControllerModel(ctr0_grip);
-      ctr0_grip.add(ctr0_model);
-      cameraContainer.add(ctr0_grip);
+      const ctr0Grip = renderer.xr.getControllerGrip(0);
+      const ctr0Model = ctrModelFactory.createControllerModel(ctr0Grip);
+      ctr0Grip.add(ctr0Model);
+      cameraContainer.add(ctr0Grip);
       ctr0.add(ray.clone());
 
       // right controller
       const ctr1 = renderer.xr.getController(1);
       cameraContainer.add(ctr1);
-      const ctr1_grip = renderer.xr.getControllerGrip(1);
-      const ctr1_model = ctrModelFactory.createControllerModel(ctr1_grip);
-      ctr1_grip.add(ctr1_model);
-      cameraContainer.add(ctr1_grip);
+      const ctr1Grip = renderer.xr.getControllerGrip(1);
+      const ctr1Model = ctrModelFactory.createControllerModel(ctr1Grip);
+      ctr1Grip.add(ctr1Model);
+      cameraContainer.add(ctr1Grip);
       ctr1.add(ray.clone());
 
       const cube = new THREE.BoxGeometry(1, 1, 1);
@@ -106,6 +106,23 @@
       scene.add(light1);
 
       function tick() {
+        if (ctr1Model.motionController) {
+          var json = JSON.stringify(ctr1Model.motionController.data, null, " ");
+          var input = JSON.parse(json);
+
+          if (input[2].xAxis >= 0.9) {
+            cameraContainer.position.x -= 0.2;
+          } else if (input[2].xAxis <= -0.9) {
+            cameraContainer.position.x += 0.2;
+          }
+
+          if (input[2].yAxis >= 0.9) {
+            cameraContainer.position.z -= 0.2;
+          } else if (input[2].yAxis <= -0.9) {
+            cameraContainer.position.z += 0.2;
+          }
+        }
+
         renderer.render(scene, camera);
       }
       renderer.setAnimationLoop(tick);
